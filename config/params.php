@@ -2,5 +2,7 @@
 
 return [
     'adminEmail' => 'admin@example.com',
-    'logPath' => 'runtime/logs/',
+    'logPath'  => '/tmp/publish',
+    'svn_user' => 'publish',
+    'svn_pass' => 'test',
 ];

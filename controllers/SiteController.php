@@ -109,11 +109,79 @@ class SiteController extends Controller
 
     public function actionStartPub()
     {
+        $taskId = Yii::$app->request->get('id');
+        $task = Task::findOne($taskId);
+        $project = Project::findOne($task->projectId);
 
+        $svn = $this->getSvn($project);
+        $result = $svn->downTrunk();
+        if ($result) {
+            $task->status = 2;
+            $task->errorMsg = '合并分支';
+            $task->save();
+        } else {
+            $task->status = -1;
+            $task->errorMsg = $result;
+            $task->save();
+            die;
+        }
+        $result = $svn->mergeBranches($task->branches);
+        if ($result) {
+            $task->status = 3;
+            $task->errorMsg = '打包项目';
+            $task->save();
+        } else {
+            $task->status = -1;
+            $task->errorMsg = $result;
+            $task->save();
+            die;
+        }
+        $result = $svn->export();
+        if ($result) {
+            $task->status = 4;
+            $task->errorMsg = '同步到目标机器';
+            $task->save();
+        } else {
+            $task->status = -1;
+            $task->errorMsg = $result;
+            $task->save();
+            die;
+        }
+        if ($svn->sync()) {
+            $task->status = 5;
+            $task->errorMsg = '发布完成';
+            $task->save();
+        } else {
+            $task->status = -1;
+            $task->errorMsg = $result;
+            $task->save();
+            die;
+        }
     }
 
     public function actionGetPubStatus()
     {
-        echo json_encode(['code' => 50, 'step' => 1]);
+        $taskId = Yii::$app->request->get('id');
+        $task = Task::findOne($taskId);
+        if ($task->status != -1) {
+            echo json_encode(['code' => ($task->status * 20),'step' => $task->status, 'msg' => $task->errorMsg]);
+        } else {
+            echo json_encode(['code' => -1, 'msg' => $task->errorMsg]);
+        }
+    }
+
+    private function getSvn($project)
+    {
+        $svn = new Svn();
+        $svn::$name = $project->name;
+        $svn::$user = Yii::$app->params['svn_user'];
+        $svn::$pass = Yii::$app->params['svn_pass'];
+        $svn::$checkout = $project->checkout;
+        $svn::$export = $project->export;
+        $svn::$trunk = $project->trunk;
+        $svn::$remote_host = $project->remote_host;
+        $svn::$remote_user = $project->remote_user;
+        $svn::$excludes = explode("\n", $project->excludes);
+        return $svn;
     }
 }

@@ -26,20 +26,80 @@ class ProjectController extends Controller
 
     public function actionAdd()
     {
+        $project = null;
         // add
         if ('ADD' == Yii::$app->request->post('TYPE')) {
-            $name = Yii::$app->request->post('name');
-            $trunk = Yii::$app->request->post('trunk');
+            $name     = Yii::$app->request->post('name');
+            $trunk    = Yii::$app->request->post('trunk');
+            $checkout = Yii::$app->request->post('checkout');
+            $export   = Yii::$app->request->post('export');
+            $host     = Yii::$app->request->post('host');
+            $user     = Yii::$app->request->post('user');
+            $excludes = Yii::$app->request->post('excludes');
+
             $project = new Project();
             $project->name = $name;
             $project->trunk = $trunk;
+            $project->checkout = $checkout;
+            $project->export = $export;
             $project->status = 1;
+            $project->remote_host = $host;
+            $project->remote_user = $user;
+            $project->excludes = $excludes;
             $project->save();
 
             $this->redirect(['@web/project']);
         }
+        else if ('UPDATE' == Yii::$app->request->post('TYPE')) {
+            $projectId = Yii::$app->request->post('id');
+            $name      = Yii::$app->request->post('name');
+            $trunk     = Yii::$app->request->post('trunk');
+            $checkout  = Yii::$app->request->post('checkout');
+            $export    = Yii::$app->request->post('export');
+            $host      = Yii::$app->request->post('host');
+            $user      = Yii::$app->request->post('user');
+            $excludes  = Yii::$app->request->post('excludes');
 
-        return $this->render('add');
+            $project = Project::findOne($projectId);
+            $project->name = $name;
+            $project->trunk = $trunk;
+            $project->checkout = $checkout;
+            $project->export = $export;
+            $project->status = 1;
+            $project->remote_host = $host;
+            $project->remote_user = $user;
+            $project->excludes = $excludes;
+            $project->save();
+
+            $this->redirect(['@web/project']);
+        }
+        if ('UPDATE' == Yii::$app->request->get('TYPE')) {
+            $projectId = Yii::$app->request->get('id');
+            $project = Project::findOne($projectId);
+        }
+        return $this->render('add', [
+            'project' => $project,
+        ]);
+    }
+
+    public function actionDel()
+    {
+        $projectId = Yii::$app->request->get('id');
+        $project = Project::findOne($projectId);
+        $project->delete();
+        $this->redirect(['@web/project']);
+    }
+
+    public function actionInit()
+    {
+        $projectId = Yii::$app->request->get('id');
+        $project = Project::findOne($projectId);
+
+        $svn = $this->getSvn($project);
+
+        $svn->downTrunk();
+
+        $this->redirect(['@web/project']);
     }
 
     public function actionGetBranchesList()
@@ -47,13 +107,7 @@ class ProjectController extends Controller
         $projectId = Yii::$app->request->get('id');
         $project = Project::findOne($projectId);
 
-        $svn = new Svn();
-        $svn::$name = $project->name;
-        $svn::$user = 'publish';
-        $svn::$pass = 'test';
-        $svn::$checkout = $project->checkout;
-        $svn::$export = $project->export;
-        $svn::$trunk = $project->trunk;
+        $svn = $this->getSvn($project);
 
         $branchesList = $svn->getBranchesList();
         if (count($branchesList) > 0) {
@@ -61,5 +115,20 @@ class ProjectController extends Controller
         } else {
             echo json_encode(['code' => 1, 'msg' => '找不到路径或没有分支']);
         }
+    }
+
+    private function getSvn($project)
+    {
+        $svn = new Svn();
+        $svn::$name = $project->name;
+        $svn::$user = 'publish';
+        $svn::$pass = 'test';
+        $svn::$checkout = $project->checkout;
+        $svn::$export = $project->export;
+        $svn::$trunk = $project->trunk;
+        $svn::$remote_host = 'wzlongi.cn';
+        $svn::$remote_user = 'root';
+        $svn::$excludes = [];
+        return $svn;
     }
 }

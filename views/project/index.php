@@ -33,8 +33,9 @@ $this->list = [
             <td><?=$project->status?></td>
             <td><?=$project->trunk?></td>
             <td>
-                <a class="btn btn-success" href="<?=Url::to('@web/project/update')?>">修改</a>
-                <a class="btn btn-danger" href="<?=Url::to('@web/project/del')?>">删除</a>
+                <a class="btn btn-success" href="<?=Url::to('@web/project/init?id=' . $project->id)?>">初始化</a>
+                <a class="btn btn-success" href="<?=Url::to('@web/project/add?TYPE=UPDATE&id=' . $project->id)?>">修改</a>
+                <a class="btn btn-danger" href="<?=Url::to('@web/project/del?id=' . $project->id)?>">删除</a>
             </td>
         </tr>
         <?php endforeach; ?>

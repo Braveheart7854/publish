@@ -11,6 +11,12 @@ use Yii;
  * @property integer $uid
  * @property string $name
  * @property integer $status
+ * @property string $trunk
+ * @property string $checkout
+ * @property string $export
+ * @property string $remote_host
+ * @property string $remote_user
+ * @property string $excludes
  */
 class Project extends \yii\db\ActiveRecord
 {
@@ -29,7 +35,7 @@ class Project extends \yii\db\ActiveRecord
     {
         return [
             [['uid', 'status'], 'integer'],
-            [['name', 'trunk', 'checkout', 'export'], 'string', 'max' => 255],
+            [['name', 'trunk', 'checkout', 'export', 'remote_host', 'remote_user', 'excludes'], 'string', 'max' => 255],
         ];
     }
 
@@ -46,6 +52,9 @@ class Project extends \yii\db\ActiveRecord
             'trunk' => '分支',
             'checkout' => '检出路径',
             'export' => '导出路径',
+            'remote_host' => '目标机器',
+            'remote_user' => '目标用户',
+            'excludes' => '忽略文件',
         ];
     }
 }

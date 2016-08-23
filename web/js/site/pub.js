@@ -5,7 +5,7 @@ $(function () {
         _taskId: 0,
         init: function () {
             _self = this;
-            _taskId = $('[data-bt=pub]').data('taskId');
+            _taskId = $('[data-bt=pub]').data('taskid');
             $('[data-bt=pub]').click(function () {
                 _self.start_pub();
             });
@@ -17,25 +17,30 @@ $(function () {
             _self.start_timer();
             // 禁用按钮
             $('[data-bt=pub]').attr('disabled', 'disabled');
+            $('#progress').css('width', '10%');
+            $('[data-bt=msg]').text('开始同步');
         },
         start_timer: function () {
             _self._timer = setInterval(function () {
                 _self._get_status();
-            }, 1000);
+            }, 600);
         },
         stop_timer: function () {
             clearInterval(_self._timer);
         },
         _get_status: function () {
             var progress = $('#progress');
+            var msg = $('[data-bt=msg]');
             $.get('/site/get-pub-status', {id:_taskId}, function (d) {
-                if (d.code == 100) {
-                    _self.stop_timer();
-                } else if (d.code == -1) {
+                if (d.code == -1) {
                     progress.css('background-color', 'red');
                     _self.stop_timer();
                 } else {
+                    msg.text(d.msg);
                     progress.css('width', d.code + '%');
+                    if (d.code == 100) {
+                        _self.stop_timer();
+                    }
                 }
             }, 'json');
         }

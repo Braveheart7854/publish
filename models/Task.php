@@ -13,6 +13,7 @@ use Yii;
  * @property string $title
  * @property integer $status
  * @property string $branches
+ * @property string $errorMsg
  */
 class Task extends \yii\db\ActiveRecord
 {
@@ -31,7 +32,7 @@ class Task extends \yii\db\ActiveRecord
     {
         return [
             [['uid', 'projectId', 'status'], 'integer'],
-            [['title', 'branches'], 'string', 'max' => 255],
+            [['title', 'branches', 'errorMsg'], 'string', 'max' => 255],
         ];
     }
 
@@ -47,6 +48,7 @@ class Task extends \yii\db\ActiveRecord
             'title' => '标题',
             'status' => '状态',
             'branches' => '发布分支',
+            'errorMsg' => '错误信息',
         ];
     }
 }

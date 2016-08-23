@@ -34,6 +34,18 @@ class Command {
      * @var string 检出路径
      */
     public static $checkout;
+    /**
+     * @var array 忽略文件列表
+     */
+    public static $excludes;
+    /**
+     * @var array 目标机器地址
+     */
+    public static $remote_host;
+    /**
+     * @var string 目标机器登录用户
+     */
+    public static $remote_user;
 
     public function getBranchesList()
     {
