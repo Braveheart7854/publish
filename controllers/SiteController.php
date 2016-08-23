@@ -111,4 +111,9 @@ class SiteController extends Controller
     {
 
     }
+
+    public function actionGetPubStatus()
+    {
+        echo json_encode(['code' => 50, 'step' => 1]);
+    }
 }

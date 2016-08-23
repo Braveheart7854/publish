@@ -19,7 +19,7 @@ $this->registerJsFile('/js/site/pub.js', ['depends' => 'app\assets\AppAsset']);
         <span>发布<code><?=$task->branches ?></code>到<code><?=$task->projectId ?></code></span>
     </div>
     <div style="background-color: #eee;" class="panel">
-        <div id="progress" style="width: 0; height: 10px; background-color: #22a8ee;"></div>
+        <div id="progress" style="width: 0; height: 5px; background-color: #22a8ee;"></div>
     </div>
     <div>
         <a href="javascript:;" data-bt="pub" data-taskId="<?=$task->id ?>" class="btn btn-success">开始发布</a>
