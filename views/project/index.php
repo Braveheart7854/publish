@@ -18,23 +18,23 @@ $this->list = [
         <thead>
         <tr>
             <td>ID</td>
-            <td>标题</td>
+            <td>项目名称</td>
             <td>状态</td>
-            <td>发布分支</td>
+            <td>分支地址</td>
             <td>操作</td>
         </tr>
         </thead>
         <tbody>
-        <?php if (isset($taskList)): ?>
-        <?php foreach ($taskList as $task): ?>
+        <?php if (isset($projectList)): ?>
+        <?php foreach ($projectList as $project): ?>
         <tr>
-            <td><?=$task->id?></td>
-            <td><?=$task->title?></td>
-            <td><?=$task->status?></td>
-            <td><?=$task->branches?></td>
+            <td><?=$project->id?></td>
+            <td><?=$project->name?></td>
+            <td><?=$project->status?></td>
+            <td><?=$project->trunk?></td>
             <td>
-                <a class="btn btn-success" href="<?=Url::to('@web/site/pub')?>">发布</a>
-                <a class="btn btn-danger" href="<?=Url::to('@web/site/del')?>">删除</a>
+                <a class="btn btn-success" href="<?=Url::to('@web/project/update')?>">修改</a>
+                <a class="btn btn-danger" href="<?=Url::to('@web/project/del')?>">删除</a>
             </td>
         </tr>
         <?php endforeach; ?>

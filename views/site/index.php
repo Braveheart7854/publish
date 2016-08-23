@@ -19,6 +19,7 @@ $this->list = [
         <tr>
             <td>ID</td>
             <td>标题</td>
+            <td>发布项目</td>
             <td>发布分支</td>
             <td>状态</td>
             <td>操作</td>
@@ -30,6 +31,7 @@ $this->list = [
         <tr>
             <td><?=$task->id?></td>
             <td><?=$task->title?></td>
+            <td><?=$task->projectId?></td>
             <td><?=$task->branches?></td>
             <td><?=$task->status?></td>
             <td>

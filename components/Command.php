@@ -7,14 +7,38 @@
  */
 namespace app\components;
 
-class SvnBase {
+class Command {
     protected static $logFile = null;
-    protected $config;
+
+    /**
+     * @var string 项目标题
+     */
+    public static $name;
+    /**
+     * @var string svn账号
+     */
+    public static $user;
+    /**
+     * @var string svn密码
+     */
+    public static $pass;
+    /**
+     * @var string 分支路径
+     */
+    public static $trunk;
+    /**
+     * @var string 导出路径
+     */
+    public static $export;
+    /**
+     * @var string 检出路径
+     */
+    public static $checkout;
 
     public function getBranchesList()
     {
-        $cmd[] = sprintf('cd %s/%s', $this->config->pubPath, $this->config->projectName);
-        $cmd[] = sprintf('svn ls %s %s', $this->getBranches(), $this->_getSvnCmd());
+        $cmd[] = sprintf('cd %s/%s', self::$checkout, self::$name);
+        $cmd[] = sprintf('svn ls %s %s', $this->getBranches(), $this->_getSvnUser());
         $command = join(' && ', $cmd);
         $result = $this->_runLocalCommand($command);
         if ($result['status'] == 0) {
@@ -28,35 +52,35 @@ class SvnBase {
 
     public function getBranchesVersion($branches)
     {
-        $cmd[] = sprintf('cd %s/%s', $this->config->pubPath, $this->config->projectName);
+        $cmd[] = sprintf('cd %s/%s', self::$checkout, self::$name);
         $cmd[] = sprintf('svn log --stop-on-copy %s |grep "^r"|tail -1|awk \'{print $1}\'', $branches);
         $command = join(' && ', $cmd);
         $result = $this->_runLocalCommand($command);
         return $result['output'][0];
     }
 
-    public function getTrunk()
+    public static function getTrunk()
     {
-        return $this->config->repo . '/trunk';
+        return self::$trunk . '/trunk';
     }
 
-    public function getBranches()
+    public static function getBranches()
     {
-        return $this->config->repo . '/branches';
+        return self::$trunk . '/branches';
     }
 
-    public function getTags()
+    public static function getTags()
     {
-        return $this->config->repo . '/tags';
+        return self::$trunk . '/tags';
     }
 
     public static function log($message) {
-        if (empty(\Yii::$app->params['log.dir'])) return;
+        if (empty(\Yii::$app->params['logPath'])) return;
 
-        $logDir = \Yii::$app->params['log.dir'];
+        $logDir = \Yii::$app->params['logPath'];
         if (!file_exists($logDir)) return;
 
-        $logFile = realpath($logDir) . '/walle-svn-' . date('Ymd') . '.log';
+        $logFile = realpath($logDir) . '/publish-' . date('Ymd') . '.log';
         if (self::$logFile === null) {
             self::$logFile = fopen($logFile, 'a');
         }
@@ -65,16 +89,20 @@ class SvnBase {
         fwrite(self::$logFile, $message . PHP_EOL);
     }
 
-
     /**
      * @param $cmd
      * @return string
      */
-    protected function _getSvnCmd() {
+    protected function _getSvnUser() {
         return sprintf(' --username=%s --password=%s --non-interactive --trust-server-cert',
-            escapeshellarg($this->config->svn_user), escapeshellarg($this->config->svn_pass));
+            escapeshellarg(self::$user), escapeshellarg(self::$pass));
     }
 
+    /**
+     * 执行本地机器命令
+     * @param $command
+     * @return array
+     */
     protected function _runLocalCommand($command)
     {
         self::log('------------- start -------------');

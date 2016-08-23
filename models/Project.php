@@ -29,7 +29,7 @@ class Project extends \yii\db\ActiveRecord
     {
         return [
             [['uid', 'status'], 'integer'],
-            [['name'], 'string', 'max' => 255],
+            [['name', 'trunk', 'checkout', 'export'], 'string', 'max' => 255],
         ];
     }
 
@@ -40,9 +40,12 @@ class Project extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'PK',
-            'uid' => '用户ID',
-            'name' => '项目名称',
-            'status' => '状态',
+            'uid' => 'Uid',
+            'name' => 'Name',
+            'status' => 'Status',
+            'trunk' => '分支',
+            'checkout' => '检出路径',
+            'export' => '导出路径',
         ];
     }
 }
