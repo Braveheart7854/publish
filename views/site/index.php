@@ -28,15 +28,20 @@ $this->list = [
         <tbody>
         <?php if (isset($taskList)): ?>
         <?php foreach ($taskList as $task): ?>
-        <tr>
+        <tr style="height: 51px;">
             <td><?=$task->id?></td>
             <td><?=$task->title?></td>
-            <td><?=$task->projectId?></td>
+            <td><?=$task->projectName?></td>
             <td><?=$task->branches?></td>
-            <td><?=$task->status?></td>
+            <td><?=$statusList[$task->status]?></td>
             <td>
+                <?php if ($task->status == 5) { ?>
+                <a class="btn btn-primary" href="<?=Url::to('@web/site/merge') . '?id=' . $task->id?>">合并</a>
+                <a class="btn btn-default" href="<?=Url::to('@web/site/reset') . '?id=' . $task->id?>">回滚</a>
+                <?php } else if ($task->status > 0 && $task->status < 5) { ?>
                 <a class="btn btn-success" href="<?=Url::to('@web/site/pub') . '?id=' . $task->id?>">发布</a>
                 <a class="btn btn-danger" href="<?=Url::to('@web/site/del') . '?id=' . $task->id?>">删除</a>
+                <?php } ?>
             </td>
         </tr>
         <?php endforeach; ?>

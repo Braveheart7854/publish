@@ -17,6 +17,8 @@ use Yii;
  */
 class Task extends \yii\db\ActiveRecord
 {
+    public $projectName;
+
     /**
      * @inheritdoc
      */

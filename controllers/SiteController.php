@@ -60,14 +60,25 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        $statusList = [
+            1 => '等待发布',
+            2 => '同步分支',
+            3 => '导出项目',
+            4 => '同步到服务器',
+            5 => '发布完成',
+            6 => '已合并',
+            7 => '已回滚',
+        ];
+
         $taskList = Task::find()->orderBy('id desc')->all();
 
         foreach ($taskList as &$task) {
-            $task->projectId = Project::findOne($task->projectId)->name;
+            $task->projectName = Project::findOne($task->projectId)->name;
         }
 
         return $this->render('index', [
             'taskList' => $taskList,
+            'statusList' => $statusList,
         ]);
     }
 
@@ -83,6 +94,7 @@ class SiteController extends Controller
             $task->projectId = $projectId;
             $task->title = $title;
             $task->status = 1;
+            $task->errorMsg = 'waiting..';
             $task->save();
 
             $this->redirect(['@web/site']);
@@ -93,6 +105,15 @@ class SiteController extends Controller
         return $this->render('add', [
             'projectList' => $projectList,
         ]);
+    }
+
+    public function actionDel()
+    {
+        $taskId = Yii::$app->request->get('id');
+        $task = Task::findOne($taskId);
+        $task->delete();
+
+        $this->redirect(['@web/site']);
     }
 
     public function actionPub()
@@ -114,6 +135,7 @@ class SiteController extends Controller
         $project = Project::findOne($task->projectId);
 
         $svn = $this->getSvn($project);
+
         $result = $svn->downTrunk();
         if ($result) {
             $task->status = 2;
@@ -147,7 +169,8 @@ class SiteController extends Controller
             $task->save();
             die;
         }
-        if ($svn->sync()) {
+        $result = $svn->sync();
+        if ($result) {
             $task->status = 5;
             $task->errorMsg = '发布完成';
             $task->save();
@@ -168,6 +191,48 @@ class SiteController extends Controller
         } else {
             echo json_encode(['code' => -1, 'msg' => $task->errorMsg]);
         }
+    }
+
+    public function actionMerge()
+    {
+        $taskId = Yii::$app->request->get('id');
+        $task = Task::findOne($taskId);
+        $project = Project::findOne($task->projectId);
+
+        $svn = $this->getSvn($project);
+
+        $result = $svn->commit(sprintf('%s_%s_%s', date('Y-m-d H:i:s'), $project->name, $task->title));
+
+        if ($result['status'] == 0) {
+            $task->status = 6;
+            $task->save();
+        }
+
+        return $this->render('merge', [
+            'task' => $task,
+            'project' => $project,
+            'result' => json_encode($result),
+        ]);
+    }
+
+    /**
+     * 项目回滚
+     */
+    public function actionReset()
+    {
+        $taskId = Yii::$app->request->get('id');
+        $task = Task::findOne($taskId);
+        $project = Project::findOne($task->projectId);
+
+        $svn = $this->getSvn($project);
+        $svn->downTrunk();
+        $svn->export();
+        $svn->sync();
+
+        $task->status = 7;
+        $task->save();
+
+        $this->redirect(['@web/site']);
     }
 
     private function getSvn($project)

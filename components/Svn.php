@@ -67,15 +67,14 @@ class Svn extends Command
         foreach (self::$excludes as $val) {
             $val = trim($val);
             if ($val == '') continue;
-            $excludes .= " --exclude=\"{$val}\" ";
+            $excludes .= "--exclude=\"{$val}\" ";
         }
 
         if (is_array(self::$remote_host)) {
             foreach (self::$remote_host as $host) {
-                $cmd[] = sprintf('cd %s', self::$checkout);
                 $cmd[] = sprintf('rsync -avz --delete %s %s %s@%s:%s',
                     $excludes,
-                    self::$name . '-export/',
+                    self::$checkout . '/' . self::$name . '-export/',
                     self::$remote_user,
                     $host,
                     self::$export
@@ -87,10 +86,9 @@ class Svn extends Command
                 if ($result['status'] != 0) return $result['ooutput'];
             }
         } else {
-            $cmd[] = sprintf('cd %s', self::$checkout);
             $cmd[] = sprintf('rsync -avz --delete %s %s %s@%s:%s',
                 $excludes,
-                self::$name . '-export/',
+                self::$checkout . '/' . self::$name . '-export/',
                 self::$remote_user,
                 self::$remote_host,
                 self::$export
@@ -113,6 +111,7 @@ class Svn extends Command
         $cmd[] = sprintf('cd %s/%s', self::$checkout, self::$name);
         $cmd[] = sprintf('svn ci -m "%s" %s', $msg, $this->_getSvnUser());
         $command = join(' && ', $cmd);
-        $this->_runLocalCommand($command);
+        $result = $this->_runLocalCommand($command);
+        return $result;
     }
 }

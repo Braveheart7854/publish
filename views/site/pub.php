@@ -34,13 +34,18 @@ $this->registerJsFile('/js/site/pub.js', ['depends' => 'app\assets\AppAsset']);
 <div class="site-index">
     <h2><?= $this->title ?></h2>
     <div class="panel-group">
-        <span>发布<code><?= $task->branches ?></code>到<code><?= $task->projectId ?></code></span>
+        <span>发布任务<code><?=$task->title ?></code>:<code><?= $task->branches ?></code>到<code><?= $task->projectId ?></code></span>
     </div>
     <div style="background-color: #eee;" class="panel">
-        <div id="progress"></div>
+        <div id="progress" style="<?=$task->status == 5 ? 'width:100%;' : '' ?>"></div>
     </div>
     <div>
+        <?php if ($task->status != 5) { ?>
         <a href="javascript:;" data-bt="pub" data-taskId="<?= $task->id ?>" class="btn btn-success">开始发布</a>
-        ::<span data-bt="msg" class="panel-default">同步时请不要关闭，或刷新页面</span>
+        <?php } else { ?>
+        <a href="<?=Url::to(['@web/site/merge?id=' . $task->id]) ?>" class="btn btn-primary">合并</a>
+        <a href="<?=Url::to(['@web/site/merge']) ?>" class="btn btn-default">回滚</a>
+        <?php } ?>
+        ::<span data-bt="msg" class="panel-default"><?=$task->status == 5 ? '发布已完成，请完成后续操作' : '同步时请不要关闭，或刷新页面' ?></span>
     </div>
 </div>

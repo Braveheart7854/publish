@@ -121,14 +121,14 @@ class ProjectController extends Controller
     {
         $svn = new Svn();
         $svn::$name = $project->name;
-        $svn::$user = 'publish';
-        $svn::$pass = 'test';
+        $svn::$user = Yii::$app->params['svn_user'];
+        $svn::$pass = Yii::$app->params['svn_pass'];
         $svn::$checkout = $project->checkout;
         $svn::$export = $project->export;
         $svn::$trunk = $project->trunk;
-        $svn::$remote_host = 'wzlongi.cn';
-        $svn::$remote_user = 'root';
-        $svn::$excludes = [];
+        $svn::$remote_host = $project->remote_host;
+        $svn::$remote_user = $project->remote_user;
+        $svn::$excludes = explode("\n", $project->excludes);
         return $svn;
     }
 }

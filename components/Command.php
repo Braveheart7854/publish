@@ -65,7 +65,7 @@ class Command {
     public function getBranchesVersion($branches)
     {
         $cmd[] = sprintf('cd %s/%s', self::$checkout, self::$name);
-        $cmd[] = sprintf('svn log --stop-on-copy %s |grep "^r"|tail -1|awk \'{print $1}\'', $branches);
+        $cmd[] = sprintf('svn log --stop-on-copy %s %s |grep "^r"|tail -1|awk \'{print $1}\'', $branches, $this->_getSvnUser());
         $command = join(' && ', $cmd);
         $result = $this->_runLocalCommand($command);
         return $result['output'][0];
