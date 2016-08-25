@@ -15,7 +15,7 @@ class Svn extends Command
     public function downTrunk()
     {
         if (!file_exists(self::$checkout)) {
-            die('发布路径不存在：' . self::$checkout);
+            return '发布路径不存在：' . self::$checkout;
         }
         $cmd[] = sprintf('cd %s', self::$checkout);
         $cmd[] = sprintf('rm -rf %s', self::$name);

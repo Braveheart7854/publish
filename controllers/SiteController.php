@@ -141,7 +141,7 @@ class SiteController extends Controller
         if ($url == Svn::getTrunk()) {
             // reset & update
             $result = $svn->resetTrunk();
-            if ($result) {
+            if ($result === true) {
                 $svn->updateTrunk();
                 $task->status = 2;
                 $task->errorMsg = '更新分支';
@@ -155,13 +155,13 @@ class SiteController extends Controller
         } else {
             // co trunk
             $result = $svn->downTrunk();
-            if ($result) {
+            if ($result === true) {
                 $task->status = 2;
                 $task->errorMsg = '合并分支';
                 $task->save();
             } else {
                 $task->status = -1;
-                $task->errorMsg = '更新分支失败';
+                $task->errorMsg = is_array($result) ? '更新分支失败' : $result;
                 $task->save();
                 die;
             }
@@ -227,10 +227,15 @@ class SiteController extends Controller
             $task->save();
         }
 
+        $mergeInfo = '';
+        foreach ($result['output'] as $val) {
+            $mergeInfo .= "{$val}\n";
+        }
+
         return $this->render('merge', [
             'task' => $task,
             'project' => $project,
-            'result' => json_encode($result),
+            'result' => $mergeInfo,
         ]);
     }
 
