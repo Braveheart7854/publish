@@ -58,7 +58,7 @@ class SiteController extends Controller
      *
      * @return string
      */
-    public function actionIndex()
+    public function actionIndex($page = 1)
     {
         $statusList = [
             1 => '等待发布',
@@ -70,7 +70,9 @@ class SiteController extends Controller
             7 => '已回滚',
         ];
 
-        $taskList = Task::find()->orderBy('id desc')->all();
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+        $taskList = Task::find()->orderBy('id desc')/*->offset($offset)->limit($limit)*/->all();
 
         foreach ($taskList as &$task) {
             $task->projectName = Project::findOne($task->projectId)->name;
@@ -79,6 +81,7 @@ class SiteController extends Controller
         return $this->render('index', [
             'taskList' => $taskList,
             'statusList' => $statusList,
+            'page' => $page,
         ]);
     }
 

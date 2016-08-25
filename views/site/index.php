@@ -48,4 +48,13 @@ $this->list = [
         <?php endif; ?>
         </tbody>
     </table>
+    <!--
+    <div class="panel-body text-center">
+        <a class="btn btn-default" href="?page=<?=$page-1; ?>">&lt;</a>
+        <?php for ($i = 0; $i < 5; $i++) { ?>
+            <a class="btn btn-default" href="?page=<?=$page+$i ?>"><?=$page+$i ?></a>
+        <?php } ?>
+        <a class="btn btn-default" href="?page=<?=$page+1; ?>">&gt;</a>
+    </div>
+    -->
 </div>
