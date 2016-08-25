@@ -32,11 +32,11 @@ $(function () {
             var progress = $('#progress');
             var msg = $('[data-bt=msg]');
             $.get('/site/get-pub-status', {id:_taskId}, function (d) {
+                msg.text(d.msg);
                 if (d.code == -1) {
                     progress.css('background-color', 'red');
                     _self.stop_timer();
                 } else {
-                    msg.text(d.msg);
                     progress.css('width', d.code + '%');
                     if (d.code == 100) {
                         _self.stop_timer();

@@ -26,6 +26,40 @@ class Svn extends Command
         if ($result['status'] == 0) return true; return $result['output'];
     }
 
+    public function getBranchesUrl($path)
+    {
+        $cmd[] = sprintf('cd %s', $path);
+        $cmd[] = sprintf('svn info|grep "^URL"|awk "{print $1}"');
+        $command = join(' && ', $cmd);
+        $result = $this->_runLocalCommand($command);
+        if ($result['status'] == 0) return trim(str_replace('URL:', '', $result['output'][0])); return false;
+    }
+
+    /**
+     * 更新主干文件
+     */
+    public function updateTrunk()
+    {
+        $cmd[] = sprintf('cd %s/%s', self::$checkout, self::$name);
+        $cmd[] = sprintf('svn up %s', $this->_getSvnUser()); // 更新
+        $command = join(' && ', $cmd);
+        $result = $this->_runLocalCommand($command . ' > tmp &');
+        if ($result['status'] == 0) return true; return $result['output'];
+    }
+
+    /**
+     * 还原主干代码
+     */
+    public function resetTrunk()
+    {
+        $cmd[] = sprintf('cd %s/%s', self::$checkout, self::$name);
+        $cmd[] = sprintf('svn revert . -R %s', $this->_getSvnUser()); // 还原合并文件
+        $cmd[] = sprintf('rm -rf `svn st %s | grep ^?`', $this->_getSvnUser()); // 删除不在控制中的文件
+        $command = join(' && ', $cmd);
+        $result = $this->_runLocalCommand($command . ' > tmp &');
+        if ($result['status'] == 0) return true; return $result['output'];
+    }
+
     /**
      * 合并分支代码
      * @param $branches
@@ -34,10 +68,10 @@ class Svn extends Command
     {
         $version = $this->getBranchesVersion($this->getBranches() . '/' . $branches);
         $cmd[] = sprintf('cd %s/%s', self::$checkout, self::$name);
-        $cmd[] = sprintf('svn merge -%s:HEAD %s %s', $version, $this->getBranches() . '/' . $branches, $this->_getSvnUser());
+        $cmd[] = sprintf('svn merge -%s:head %s %s', $version, $this->getBranches() . '/' . $branches, $this->_getSvnUser());
         $command = join(' && ', $cmd);
         $result = $this->_runLocalCommand($command);
-        if ($result['status'] == 0) return true; return $result['output'];
+        if ($result['status'] == 0) return true; return false;
     }
 
     /**

@@ -44,7 +44,7 @@ $this->registerJsFile('/js/site/pub.js', ['depends' => 'app\assets\AppAsset']);
         <a href="javascript:;" data-bt="pub" data-taskId="<?= $task->id ?>" class="btn btn-success">开始发布</a>
         <?php } else { ?>
         <a href="<?=Url::to(['@web/site/merge?id=' . $task->id]) ?>" class="btn btn-primary">合并</a>
-        <a href="<?=Url::to(['@web/site/merge']) ?>" class="btn btn-default">回滚</a>
+        <a href="<?=Url::to(['@web/site/reset?id=' . $task->id]) ?>" class="btn btn-default">回滚</a>
         <?php } ?>
         ::<span data-bt="msg" class="panel-default"><?=$task->status == 5 ? '发布已完成，请完成后续操作' : '同步时请不要关闭，或刷新页面' ?></span>
     </div>

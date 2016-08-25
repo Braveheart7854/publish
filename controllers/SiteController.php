@@ -136,16 +136,35 @@ class SiteController extends Controller
 
         $svn = $this->getSvn($project);
 
-        $result = $svn->downTrunk();
-        if ($result) {
-            $task->status = 2;
-            $task->errorMsg = '合并分支';
-            $task->save();
+        $url = $svn->getBranchesUrl($svn::$checkout . '/' . $svn::$name);
+        // 主干是否已co
+        if ($url == Svn::getTrunk()) {
+            // reset & update
+            $result = $svn->resetTrunk();
+            if ($result) {
+                $svn->updateTrunk();
+                $task->status = 2;
+                $task->errorMsg = '更新分支';
+                $task->save();
+            } else {
+                $task->status = -1;
+                $task->errorMsg = '更新主干失败';
+                $task->save();
+                die;
+            }
         } else {
-            $task->status = -1;
-            $task->errorMsg = $result;
-            $task->save();
-            die;
+            // co trunk
+            $result = $svn->downTrunk();
+            if ($result) {
+                $task->status = 2;
+                $task->errorMsg = '合并分支';
+                $task->save();
+            } else {
+                $task->status = -1;
+                $task->errorMsg = '更新分支失败';
+                $task->save();
+                die;
+            }
         }
         $result = $svn->mergeBranches($task->branches);
         if ($result) {
@@ -154,7 +173,7 @@ class SiteController extends Controller
             $task->save();
         } else {
             $task->status = -1;
-            $task->errorMsg = $result;
+            $task->errorMsg = '合并分支失败，请检查分支是否存在';
             $task->save();
             die;
         }
@@ -165,7 +184,7 @@ class SiteController extends Controller
             $task->save();
         } else {
             $task->status = -1;
-            $task->errorMsg = $result;
+            $task->errorMsg = '打包失败，请检查目录是否存在';
             $task->save();
             die;
         }
@@ -225,7 +244,8 @@ class SiteController extends Controller
         $project = Project::findOne($task->projectId);
 
         $svn = $this->getSvn($project);
-        $svn->downTrunk();
+        $svn->resetTrunk();
+        $svn->updateTrunk();
         $svn->export();
         $svn->sync();
 
