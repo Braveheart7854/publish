@@ -134,6 +134,8 @@ class SiteController extends Controller
         $task = Task::findOne($taskId);
         $project = Project::findOne($task->projectId);
 
+        $startTime = microtime(true);
+
         $svn = $this->getSvn($project);
 
         $url = $svn->getBranchesUrl($svn::$checkout . '/' . $svn::$name);
@@ -189,9 +191,10 @@ class SiteController extends Controller
             die;
         }
         $result = $svn->sync();
+        $endTime = microtime(true);
         if ($result) {
             $task->status = 5;
-            $task->errorMsg = '发布完成';
+            $task->errorMsg = '发布完成，耗时:' . round($endTime - $startTime, 3) . 's';
             $task->save();
         } else {
             $task->status = -1;
