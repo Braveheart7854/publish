@@ -61,13 +61,14 @@ class SiteController extends Controller
     public function actionIndex($page = 1)
     {
         $statusList = [
-            1 => '等待发布',
-            2 => '同步分支',
-            3 => '导出项目',
-            4 => '同步到服务器',
-            5 => '发布完成',
-            6 => '已合并',
-            7 => '已回滚',
+            -1 => '发布失败',
+            1  => '等待发布',
+            2  => '同步分支',
+            3  => '导出项目',
+            4  => '同步到服务器',
+            5  => '发布完成',
+            6  => '已合并',
+            7  => '已回滚',
         ];
 
         $limit = 10;
@@ -182,6 +183,15 @@ class SiteController extends Controller
             $task->save();
             die;
         }
+        // 是否有冲突
+        $result = $svn->hasConflict();
+        if (count($result) > 0) {
+            $task->status = -1;
+            $task->errorMsg = "需要解决冲突\n" . join("\n", $result);
+            $task->save();
+            die;
+        }
+        // 导出项目
         $result = $svn->export();
         if ($result) {
             $task->status = 4;

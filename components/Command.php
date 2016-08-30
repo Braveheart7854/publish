@@ -71,6 +71,26 @@ class Command {
         return $result['output'][0];
     }
 
+    /**
+     * 是否发生冲突
+     */
+    public function hasConflict()
+    {
+        $conflict = [];
+        $cmd[] = sprintf('cd %s/%s', self::$checkout, self::$name);
+        $cmd[] = sprintf('svn st %s', $this->_getSvnUser());
+        $command = join(' && ', $cmd);
+        $result = $this->_runLocalCommand($command);
+        $result = $result['output'];
+        foreach ($result as $val) {
+            $frist = substr(trim($val), 0, 1);
+            if (strtoupper($frist) == 'C') {
+                $conflict[] = trim(substr($val, 1));
+            }
+        }
+        return $conflict;
+    }
+
     public static function getTrunk()
     {
         return self::$trunk . '/trunk';
